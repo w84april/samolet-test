@@ -2,24 +2,18 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  Row,
   RowData,
   TableOptions,
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtual } from '@tanstack/react-virtual';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useDataContext } from './data-context-provider';
 import { Box, Table, Thead, Tr, Th, Td, Button } from '@chakra-ui/react';
 
-interface Meta {
-  className?: string;
-}
-
-export interface ColumnMeta {
-  header?: Meta;
-  cell?: Meta;
-}
+export type Meta = {
+  updateData: (rowIndex: number, columnId: string, value: string) => void;
+};
 
 interface ReactVirtualTableProps<TData extends RowData>
   extends Pick<TableOptions<TData>, 'data' | 'columns'> {}
@@ -38,7 +32,7 @@ function VirtualTable<TData extends RowData>({ columns, data }: ReactVirtualTabl
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     meta: {
-      updateData: (rowIndex: any, columnId: any, value: any) =>
+      updateData: (rowIndex, columnId, value) =>
         setData((prev) =>
           prev.map((row, index) => {
             if (index !== rowIndex) {
@@ -58,7 +52,7 @@ function VirtualTable<TData extends RowData>({ columns, data }: ReactVirtualTabl
             return newRow;
           }),
         ),
-    },
+    } satisfies Meta,
   });
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -104,9 +98,8 @@ function VirtualTable<TData extends RowData>({ columns, data }: ReactVirtualTabl
                 <Td h={`${paddingTop}px`} />
               </Tr>
             )}
-            {virtualRows.map((virtualRow: any) => {
-              const row = rows[virtualRow.index] as Row<TData>;
-
+            {virtualRows.map((virtualRow) => {
+              const row = rows[virtualRow.index];
               return (
                 <Tr key={row.id}>
                   {row.getVisibleCells().map((cell) => {

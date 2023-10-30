@@ -15,7 +15,7 @@ export const ALL_OPTIONS: Option[] = [
   },
 ];
 
-export type Row = { [id: string]: string };
+export type Row = Record<string, string>;
 
 export const DATA: Row[] = [
   {

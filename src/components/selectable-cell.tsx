@@ -9,10 +9,18 @@ import { Text, Box } from '@chakra-ui/react';
 import { useDataContext } from './data-context-provider';
 import { useEffect, useState } from 'react';
 import { removeDuplicates } from '../utils/remove-duplicates';
+import { CellContext, ColumnDefTemplate } from '@tanstack/react-table';
+import { Row } from '../constants';
+import { Meta } from './virtual-table';
 
-export const SelectableCell = ({ getValue, id, row, column, table }: any) => {
+export const SelectableCell: ColumnDefTemplate<CellContext<Row, unknown>> | undefined = ({
+  getValue,
+  row,
+  column,
+  table,
+}) => {
   const { options, addOption } = useDataContext();
-  const initialValue = getValue() || '';
+  const initialValue = (getValue() || '') as string;
 
   const [inputValue, setInputValue] = useState(initialValue);
 
@@ -30,8 +38,9 @@ export const SelectableCell = ({ getValue, id, row, column, table }: any) => {
   const noDuplicatesFilteredOptions = removeDuplicates(filteredOptions);
 
   const handleChange = (value: string) => {
-    addOption({ id: value, parentId: parentValue });
-    table.options.meta.updateData(row.index, column.id, value);
+    addOption({ id: value, parentId: typeof parentValue === 'string' ? parentValue : null });
+    //Due to generic limitations, This meta object must be typecast to the correct type before usage.
+    (table.options.meta as Meta)?.updateData(row.index, column.id, value);
   };
 
   useEffect(() => {
